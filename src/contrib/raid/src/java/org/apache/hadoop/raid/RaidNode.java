@@ -384,7 +384,7 @@ public class RaidNode implements RaidProtocol {
             	  dr.addRaidPaths(info, filteredPaths);
             	}
             } catch (Exception e) {
-              LOG.info("Exception while invoking action on policy " + info.getName() +
+              LOG.warn("Exception while invoking action on policy " + info.getName() +
                        " srcPath " + info.getSrcPath() + 
                        " exception " + StringUtils.stringifyException(e));
               continue;
@@ -1218,6 +1218,7 @@ public class RaidNode implements RaidProtocol {
                                         Configuration conf) throws IOException {
     if (conf == null) {
       conf = new Configuration();
+      conf.addResource("hdfs-site.xml");
     }
     StartupOption startOpt = parseArguments(argv);
     if (startOpt == null) {

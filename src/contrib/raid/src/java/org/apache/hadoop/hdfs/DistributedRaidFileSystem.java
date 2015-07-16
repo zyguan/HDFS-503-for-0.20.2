@@ -61,11 +61,32 @@ public class DistributedRaidFileSystem extends FilterFileSystem {
     stripeLength = 0;
   }
 
+  /**
+   * The name of the file system that is immediately below the
+   * DistributedRaidFileSystem. This is specified by the
+   * configuration parameter called fs.raid.underlyingfs.impl.
+   * If this parameter is not specified in the configuration, then
+   * the default class DistributedFileSystem is returned.
+   * @param conf the configuration object
+   * @return the filesystem object immediately below DistributedRaidFileSystem
+   * @throws IOException if all alternate locations are exhausted
+   */
+  static FileSystem getUnderlyingFileSystem(Configuration conf) throws IOException {
+    Class<?> clazz = conf.getClass("fs.raid.underlyingfs.impl", DistributedFileSystem.class);
+    if (clazz == null) {
+      throw new IOException("No FileSystem for fs.raid.underlyingfs.impl.");
+    }
+    return (FileSystem)ReflectionUtils.newInstance(clazz, conf);
+  }
+
   /* Initialize a Raid FileSystem
    */
   public void initialize(URI name, Configuration conf) throws IOException {
-    super.initialize(name, conf);
+
+    this.fs = getUnderlyingFileSystem(conf);
     this.conf = conf;
+
+    super.initialize(name, conf);
 
     String alt = conf.get("hdfs.raid.locations");
     
@@ -346,22 +367,6 @@ public class DistributedRaidFileSystem extends FilterFileSystem {
           }
         }
         throw curexp;
-      }
-
-      /**
-       * The name of the file system that is immediately below the
-       * DistributedRaidFileSystem. This is specified by the
-       * configuration parameter called fs.raid.underlyingfs.impl.
-       * If this parameter is not specified in the configuration, then
-       * the default class DistributedFileSystem is returned.
-       * @param conf the configuration object
-       * @return the filesystem object immediately below DistributedRaidFileSystem
-       * @throws IOException if all alternate locations are exhausted
-       */
-      private FileSystem getUnderlyingFileSystem(Configuration conf) {
-        Class<?> clazz = conf.getClass("fs.raid.underlyingfs.impl", DistributedFileSystem.class);
-        FileSystem fs = (FileSystem)ReflectionUtils.newInstance(clazz, conf);
-        return fs;
       }
     }
   
