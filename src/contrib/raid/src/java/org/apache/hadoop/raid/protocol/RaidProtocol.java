@@ -62,7 +62,7 @@ public interface RaidProtocol extends VersionedProtocol {
 
   /**
    * Unraid the specified input path. This is called when the specified file
-   * is corrupted. This call will move the specified file to file.old
+   * is corrupted. This call will move the specified file to file.timestamp
    * and then recover it from the RAID subsystem.
    *
    * @param inputPath The absolute pathname of the file to be recovered.

@@ -131,8 +131,9 @@ class ConfigManager {
    * 
    <configuration>
     <srcPath prefix="hdfs://hadoop.myhost.com:9000/user/warehouse/u_full/*">
-      <destPath> hdfs://dfsarch.data.facebook.com:9000/archive/</destPath>
       <policy name = RaidScanWeekly>
+        <destPath>hdfs://dfsarch.data.facebook.com:9000/archive/</destPath>
+        <description>this is a demo policy</description>
         <property>
           <name>targetReplication</name>
           <value>2</value>

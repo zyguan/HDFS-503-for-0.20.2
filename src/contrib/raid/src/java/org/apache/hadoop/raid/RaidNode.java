@@ -269,7 +269,11 @@ public class RaidNode implements RaidProtocol {
       FileSystem fs = FileSystem.get(destPath.toUri(), conf);
       destPath = destPath.makeQualified(fs);
 
-      unRaid(conf, srcPath, destPath, stripeLength, corruptOffset);
+      Path recoveredPath = unRaid(conf, srcPath, destPath, stripeLength, corruptOffset);
+      Path corruptedPath = new Path(srcPath + "." + System.currentTimeMillis());
+      FileSystem srcFs = srcPath.getFileSystem(conf);
+      srcFs.rename(srcPath, corruptedPath);
+      srcFs.rename(recoveredPath, srcPath);
     }
     return ReturnStatus.SUCCESS;
   }
@@ -558,7 +562,7 @@ public class RaidNode implements RaidProtocol {
     for (FileStatus s : paths) {
       doRaid(conf, s, p, statistics, null, doSimulate, targetRepl, metaRepl,
           stripeLength);
-      if (count % 1000 == 0) {
+      if ((count+1) % 1000 == 0) {
         LOG.info("RAID statistics " + statistics.toString());
       }
       count++;
@@ -676,12 +680,14 @@ public class RaidNode implements RaidProtocol {
     // if the parity file is already upto-date, then nothing to do
     try {
       FileStatus stmp = outFs.getFileStatus(outpath);
-      if (stmp.getModificationTime() == stat.getModificationTime()) {
+      if (stmp.getModificationTime() >= stat.getModificationTime()) {
         LOG.info("Parity file for " + inpath + "(" + locations.length + ") is " + outpath +
                  " already upto-date. Nothing more to do.");
+        return;
       }
     } catch (IOException e) {
       // ignore errors because the raid file might not exist yet.
+      LOG.info("Parity file for " + inpath + "(" + locations.length + ") does not exist.");
     } 
 
     LOG.info("Parity file for " + inpath + "(" + locations.length + ") is " + outpath);
@@ -726,10 +732,14 @@ public class RaidNode implements RaidProtocol {
       out.close();
       out = null;
 
+      // remove out-of-date parity file
+      if (outFs.isFile(outpath) && !outFs.delete(outpath, false)) {
+        String msg = "Unable to remove out-of-date parity file " + outpath;
+        throw new IOException (msg);
+      }
       // rename tmppath to the real parity filename
       if (!outFs.rename(tmppath, outpath)) {
         String msg = "Unable to rename tmp file " + tmppath + " to " + outpath;
-        LOG.warn(msg);
         throw new IOException (msg);
       }
     } finally {
@@ -893,7 +903,7 @@ public class RaidNode implements RaidProtocol {
     FSDataOutputStream fout = null;
     int retry = 5;
     try {
-      tmpFile = new Path("/tmp/dhruba/" + rand.nextInt());
+      tmpFile = new Path("/tmp/raid-recovery/" + rand.nextInt());
       fout = parityFs.create(tmpFile, false);
     } catch (IOException e) {
       if (retry-- <= 0) {
@@ -921,15 +931,14 @@ public class RaidNode implements RaidProtocol {
 
     // Now, reopen the source file and the recovered block file
     // and copy all relevant data to new file
-    Path recoveredPath =  new Path(destPathPrefix, makeRelative(srcPath));
-    recoveredPath = new Path(recoveredPath + ".recovered");
+    Path recoveredPath =  new Path(srcPath + ".recovered");
     LOG.info("Creating recovered file " + recoveredPath);
 
     FSDataInputStream sin = srcFs.open(srcPath);
-    FSDataOutputStream out = parityFs.create(recoveredPath, false, 
-                                             conf.getInt("io.file.buffer.size", 64 * 1024),
-                                             srcStat.getReplication(), 
-                                             srcStat.getBlockSize());
+    FSDataOutputStream out = srcFs.create(recoveredPath, false,
+                                          conf.getInt("io.file.buffer.size", 64 * 1024),
+                                          srcStat.getReplication(),
+                                          srcStat.getBlockSize());
 
     FSDataInputStream bin = parityFs.open(tmpFile);
     long recoveredSize = 0;

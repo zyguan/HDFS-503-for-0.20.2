@@ -34,6 +34,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.raid.RaidNode;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -201,7 +202,8 @@ public class PolicyInfo implements Writable {
   public void write(DataOutput out) throws IOException {
     Text.writeString(out, srcPath.toString());
     Text.writeString(out, policyName);
-    Text.writeString(out, destinationPath);
+    Text.writeString(out, destinationPath != null ? destinationPath
+                        : RaidNode.DEFAULT_RAID_LOCATION);
     Text.writeString(out, description);
     out.writeInt(properties.size());
     for (Enumeration<?> e = properties.propertyNames(); e.hasMoreElements();) {
