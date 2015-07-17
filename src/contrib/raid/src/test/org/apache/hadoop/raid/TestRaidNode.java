@@ -35,12 +35,8 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.mapred.MiniMRCluster;
@@ -189,13 +185,15 @@ public class TestRaidNode extends TestCase {
                           long blockSize, int numBlock) throws Exception {
     LOG.info("doTestPathFilter started---------------------------:" +  " iter " + iter +
              " blockSize=" + blockSize + " stripeLength=" + stripeLength);
+    // avoid binding on same port repeatedly
+    conf.set("raid.server.address", "localhost:" + (iter + 60000));
+
     mySetup("/user/dhruba/raidtest", (short)1, targetReplication, metaReplication, stripeLength);
     RaidShell shell = null;
     Path dir = new Path("/user/dhruba/raidtest/");
     Path file1 = new Path(dir + "/file" + iter);
     RaidNode cnode = null;
     try {
-      Path recover1 = new Path("/destraid/" + file1 + ".recovered");
       Path destPath = new Path("/destraid/user/dhruba/raidtest");
       fileSys.delete(dir, true);
       fileSys.delete(destPath, true);
@@ -208,16 +206,21 @@ public class TestRaidNode extends TestCase {
 
       while (times-- > 0) {
         try {
+          Thread.sleep(1000);
           shell = new RaidShell(conf);
         } catch (Exception e) {
           LOG.info("doTestPathFilter unable to connect to " + RaidNode.getAddress(conf) +
-                   " retrying....");
-          Thread.sleep(1000);
+                   " cause " + e + ", retrying....");
           continue;
         }
         break;
       }
-      LOG.info("doTestPathFilter created RaidShell.");
+      try {
+        shell.raidnode.getAllPolicies(); // functional test
+      } catch (Exception e) {
+        throw new IOException("Cannot get functional raid shell, got " + e);
+      }
+      LOG.info("doTestPathFilter created RaidShell after " + (10-times) + " tries.");
       FileStatus[] listPaths = null;
 
       // wait till file is raided
@@ -249,27 +252,26 @@ public class TestRaidNode extends TestCase {
       // check for error at beginning of file
       if (numBlock >= 1) {
         LOG.info("Check error at beginning of file.");
-        simulateError(shell, fileSys, file1, recover1, crc1, 0);
+        simulateError(shell, fileSys, file1, crc1, 0);
       }
 
       // check for error at the beginning of second block
       if (numBlock >= 2) {
         LOG.info("Check error at beginning of second block.");
-        simulateError(shell, fileSys, file1, recover1, crc1, blockSize + 1);
+        simulateError(shell, fileSys, file1, crc1, blockSize + 1);
       }
 
       // check for error at the middle of third block
       if (numBlock >= 3) {
         LOG.info("Check error at middle of third block.");
-        simulateError(shell, fileSys, file1, recover1, crc1,
-                                                        2 * blockSize + 10);
+        simulateError(shell, fileSys, file1, crc1, 2 * blockSize + 10);
       }
 
       // check for error at the middle of second stripe
       if (numBlock >= stripeLength + 1) {
         LOG.info("Check error at middle of second stripe.");
-        simulateError(shell, fileSys, file1, recover1, crc1,
-                                            stripeLength * blockSize + 100);
+        simulateError(shell, fileSys, file1, crc1,
+                      stripeLength * blockSize + 100);
       }
 
     } catch (Exception e) {
@@ -423,7 +425,7 @@ public class TestRaidNode extends TestCase {
   //
   // simulate a corruption at specified offset and verify that eveyrthing is good
   //
-  void simulateError(RaidShell shell, FileSystem fileSys, Path file1, Path recover1, 
+  void simulateError(RaidShell shell, FileSystem fileSys, Path file1,
                      long crc, long corruptOffset) throws IOException {
     // recover the file assuming that we encountered a corruption at offset 0
     String[] args = new String[3];
@@ -431,11 +433,21 @@ public class TestRaidNode extends TestCase {
     args[1] = file1.toString();
     args[2] = Long.toString(corruptOffset);
     shell.recover(args[0], args, 1);
+    final String fname = file1.getName();
+
+    // get old file
+    Path file2 = null;
+    for (FileStatus fstat : fileSys.listStatus(file1.getParent(), new PathFilter() {
+      @Override
+      public boolean accept(Path path) {
+        return path.getName().matches(fname + ".\\d+");
+      }
+    })) { file2 = fstat.getPath(); break; }
 
     // compare that the recovered file is identical to the original one
-    LOG.info("Comparing file " + file1 + " with recovered file " + recover1);
-    validateFile(fileSys, file1, recover1, crc);
-    fileSys.delete(recover1, false);
+    LOG.info("Comparing file " + file2 + " with recovered file " + file1);
+    validateFile(fileSys, file1, file2, crc);
+    fileSys.delete(file2, false);
   }
 
   //
