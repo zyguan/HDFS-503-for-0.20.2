@@ -56,7 +56,15 @@ import org.apache.hadoop.raid.protocol.RaidProtocol.ReturnStatus;
  * A {@link RaidNode} that implements 
  */
 public class RaidNode implements RaidProtocol {
-  public static final Log LOG = LogFactory.getLog( "org.apache.hadoop.raid.RaidNode");
+
+  static{
+    Configuration.addDefaultResource("hdfs-default.xml");
+    Configuration.addDefaultResource("hdfs-site.xml");
+    Configuration.addDefaultResource("mapred-default.xml");
+    Configuration.addDefaultResource("mapred-site.xml");
+  }
+
+  public static final Log LOG = LogFactory.getLog(RaidNode.class.getName());
   public static final long SLEEP_TIME = 10000L; // 10 seconds
   public static final int DEFAULT_PORT = 60000;
   public static final int DEFAULT_STRIPE_LENGTH = 5; // default value of stripe length
@@ -1227,7 +1235,6 @@ public class RaidNode implements RaidProtocol {
                                         Configuration conf) throws IOException {
     if (conf == null) {
       conf = new Configuration();
-      conf.addResource("hdfs-site.xml");
     }
     StartupOption startOpt = parseArguments(argv);
     if (startOpt == null) {

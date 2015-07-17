@@ -49,7 +49,13 @@ import org.apache.hadoop.raid.protocol.RaidProtocol.ReturnStatus;
  * A {@link RaidShell} that allows browsing configured raid policies.
  */
 public class RaidShell extends Configured implements Tool {
-  public static final Log LOG = LogFactory.getLog( "org.apache.hadoop.RaidShell");
+
+  static {
+    Configuration.addDefaultResource("hdfs-default.xml");
+    Configuration.addDefaultResource("hdfs-site.xml");
+  }
+
+  public static final Log LOG = LogFactory.getLog(RaidShell.class.getName());
   public RaidProtocol raidnode;
   final RaidProtocol rpcRaidnode;
   private UnixUserGroupInformation ugi;
