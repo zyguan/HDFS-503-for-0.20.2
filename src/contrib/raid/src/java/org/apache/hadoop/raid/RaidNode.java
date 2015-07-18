@@ -1002,7 +1002,7 @@ public class RaidNode implements RaidProtocol {
     // recovered path
     copyMetaInformation(parityFs, srcStat, recoveredPath);
 
-    return recoveredPath;
+    return recoveredPath.makeQualified(srcFs);
   }
 
   /**
