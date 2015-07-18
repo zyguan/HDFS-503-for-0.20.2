@@ -317,6 +317,14 @@ public class DFSClient implements FSConstants, java.io.Closeable {
   }
 
   /**
+   * Get the namenode associated with this DFSClient object
+   * @return the namenode associated with this DFSClient object
+   */
+  public ClientProtocol getNamenode() {
+    return namenode;
+  }
+
+  /**
    * Get block location info about file
    * 
    * getBlockLocations() returns a list of hostnames that store 
@@ -1809,7 +1817,8 @@ public class DFSClient implements FSConstants, java.io.Closeable {
         } catch (IOException ie) {
           String blockInfo = block.getBlock() + " file=" + src;
           if (failures >= maxBlockAcquireFailures) {
-            throw new IOException("Could not obtain block: " + blockInfo);
+            throw new BlockMissingException(src, "Could not obtain block: " + blockInfo,
+                                            block.getStartOffset());
           }
           
           if (nodes == null || nodes.length == 0) {

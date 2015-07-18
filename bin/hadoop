@@ -58,11 +58,13 @@ if [ $# = 0 ]; then
   echo "  namenode -format     format the DFS filesystem"
   echo "  secondarynamenode    run the DFS secondary namenode"
   echo "  namenode             run the DFS namenode"
+  echo "  raidnode             run the DFS raidnode"
   echo "  datanode             run a DFS datanode"
   echo "  dfsadmin             run a DFS admin client"
   echo "  mradmin              run a Map-Reduce admin client"
   echo "  fsck                 run a DFS filesystem checking utility"
   echo "  fs                   run a generic filesystem user client"
+  echo "  raid                 run a raid utility"
   echo "  balancer             run a cluster balancing utility"
   echo "  jobtracker           run the MapReduce job Tracker node" 
   echo "  pipes                run a Pipes job"
@@ -160,6 +162,13 @@ for f in $HADOOP_HOME/build/hadoop-*-tools.jar; do
   TOOL_PATH=${TOOL_PATH}:$f;
 done
 
+# add raid libs to CLASSPATH
+if [ -d "$HADOOP_HOME/contrib/raid" ]; then
+for f in $HADOOP_HOME/contrib/raid/*.jar; do
+  CLASSPATH=${CLASSPATH}:$f;
+done
+fi
+
 # add user-specified CLASSPATH last
 if [ "$HADOOP_CLASSPATH" != "" ]; then
   CLASSPATH=${CLASSPATH}:${HADOOP_CLASSPATH}
@@ -188,6 +197,9 @@ if [ "$COMMAND" = "namenode" ] ; then
 elif [ "$COMMAND" = "secondarynamenode" ] ; then
   CLASS='org.apache.hadoop.hdfs.server.namenode.SecondaryNameNode'
   HADOOP_OPTS="$HADOOP_OPTS $HADOOP_SECONDARYNAMENODE_OPTS"
+elif [ "$COMMAND" = "raidnode" ] ; then
+  CLASS='org.apache.hadoop.raid.RaidNode'
+  HADOOP_OPTS="$HADOOP_OPTS $HADOOP_DATANODE_OPTS"
 elif [ "$COMMAND" = "datanode" ] ; then
   CLASS='org.apache.hadoop.hdfs.server.datanode.DataNode'
   HADOOP_OPTS="$HADOOP_OPTS $HADOOP_DATANODE_OPTS"
@@ -200,6 +212,9 @@ elif [ "$COMMAND" = "dfs" ] ; then
 elif [ "$COMMAND" = "dfsadmin" ] ; then
   CLASS=org.apache.hadoop.hdfs.tools.DFSAdmin
   HADOOP_OPTS="$HADOOP_OPTS $HADOOP_CLIENT_OPTS"
+elif [ "$COMMAND" = "raid" ] ; then
+  CLASS='org.apache.hadoop.raid.RaidShell'
+  HADOOP_OPTS="$HADOOP_OPTS $HADOOP_DATANODE_OPTS"
 elif [ "$COMMAND" = "mradmin" ] ; then
   CLASS=org.apache.hadoop.mapred.tools.MRAdmin
   HADOOP_OPTS="$HADOOP_OPTS $HADOOP_CLIENT_OPTS"
