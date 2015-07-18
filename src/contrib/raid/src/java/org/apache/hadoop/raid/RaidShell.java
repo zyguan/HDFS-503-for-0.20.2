@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.net.InetSocketAddress;
 import javax.security.auth.login.LoginException;
 
+import org.apache.hadoop.hdfs.protocol.AlreadyBeingCreatedException;
 import org.apache.hadoop.ipc.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -121,6 +122,7 @@ public class RaidShell extends Configured implements Tool {
 
     Map<Class<? extends Exception>,RetryPolicy> remoteExceptionToPolicyMap =
       new HashMap<Class<? extends Exception>, RetryPolicy>();
+    remoteExceptionToPolicyMap.put(AlreadyBeingCreatedException.class, createPolicy);
 
     Map<Class<? extends Exception>,RetryPolicy> exceptionToPolicyMap =
       new HashMap<Class<? extends Exception>, RetryPolicy>();
