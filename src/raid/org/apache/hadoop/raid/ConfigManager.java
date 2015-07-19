@@ -297,7 +297,7 @@ class ConfigManager {
    * Get a collection of all policies
    */
   public synchronized Collection<PolicyList> getAllPolicies() {
-    return new ArrayList(allPolicies);
+    return allPolicies;
   }
   
   /**

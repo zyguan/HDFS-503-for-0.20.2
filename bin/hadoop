@@ -162,13 +162,6 @@ for f in $HADOOP_HOME/build/hadoop-*-tools.jar; do
   TOOL_PATH=${TOOL_PATH}:$f;
 done
 
-# add raid libs to CLASSPATH
-if [ -d "$HADOOP_HOME/contrib/raid" ]; then
-for f in $HADOOP_HOME/contrib/raid/*.jar; do
-  CLASSPATH=${CLASSPATH}:$f;
-done
-fi
-
 # add user-specified CLASSPATH last
 if [ "$HADOOP_CLASSPATH" != "" ]; then
   CLASSPATH=${CLASSPATH}:${HADOOP_CLASSPATH}
