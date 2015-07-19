@@ -17,11 +17,9 @@
  */
 package org.apache.hadoop.raid.protocol;
 
-import java.util.Collection;
-import java.io.IOException;
-
 import org.apache.hadoop.ipc.VersionedProtocol;
-import org.apache.hadoop.fs.Path;
+
+import java.io.IOException;
 
 /**********************************************************************
  * RaidProtocol is used by user code 

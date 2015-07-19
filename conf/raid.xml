@@ -1,6 +1,7 @@
 <configuration>
   <srcPath prefix="/user/">
     <policy name = "demo-policy">
+      <destPath>/raid</destPath>
       <property>
         <name>srcReplication</name>
         <value>1</value>

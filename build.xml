@@ -35,6 +35,7 @@
   <property name="core.src.dir" value="${src.dir}/core"/>
   <property name="mapred.src.dir" value="${src.dir}/mapred"/> 
   <property name="hdfs.src.dir" value="${src.dir}/hdfs"/>
+  <property name="raid.src.dir" value="${src.dir}/raid"/>
   <property name="native.src.dir" value="${basedir}/src/native"/>
   <property name="examples.dir" value="${basedir}/src/examples"/>
   <property name="anttasks.dir" value="${basedir}/src/ant"/>
@@ -421,6 +422,22 @@
     </copy>
   </target>
 
+  <target name="compile-raid-classes" depends="compile-hdfs-classes,compile-mapred-classes">
+    <javac
+     encoding="${build.encoding}"
+     srcdir="${raid.src.dir};${build.src}"
+     includes="org/apache/hadoop/**/*.java"
+     destdir="${build.classes}"
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
+      <compilerarg line="${javac.args} ${javac.args.warnings}" />
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
   <target name="compile-tools" depends="init">
     <javac 
      encoding="${build.encoding}" 
@@ -489,7 +506,7 @@
 
   <target name="compile-core"
           depends="clover,compile-core-classes,compile-mapred-classes,
-  	compile-hdfs-classes,compile-core-native,compile-c++" 
+  	compile-hdfs-classes,compile-raid-classes,compile-core-native,compile-c++" 
   	description="Compile core only">
   </target>
 
