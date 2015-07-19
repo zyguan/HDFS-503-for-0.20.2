@@ -18,22 +18,21 @@
 
 package org.apache.hadoop.raid.protocol;
 
-import java.io.IOException;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.util.Collection;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Comparator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableFactories;
 import org.apache.hadoop.io.WritableFactory;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.conf.Configuration;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Maintains informatiom about all policies that belong to a category.

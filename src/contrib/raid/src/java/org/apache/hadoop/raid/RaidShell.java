@@ -18,33 +18,30 @@
 
 package org.apache.hadoop.raid;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-import java.net.InetSocketAddress;
-import javax.security.auth.login.LoginException;
-
-import org.apache.hadoop.hdfs.protocol.AlreadyBeingCreatedException;
-import org.apache.hadoop.ipc.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.io.retry.RetryPolicy;
+import org.apache.hadoop.hdfs.protocol.AlreadyBeingCreatedException;
 import org.apache.hadoop.io.retry.RetryPolicies;
+import org.apache.hadoop.io.retry.RetryPolicy;
 import org.apache.hadoop.io.retry.RetryProxy;
-import org.apache.hadoop.security.UnixUserGroupInformation;
-import org.apache.hadoop.fs.Path;
-
+import org.apache.hadoop.ipc.RPC;
+import org.apache.hadoop.ipc.RemoteException;
+import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.raid.protocol.PolicyInfo;
 import org.apache.hadoop.raid.protocol.PolicyList;
 import org.apache.hadoop.raid.protocol.RaidProtocol;
-import org.apache.hadoop.raid.protocol.RaidProtocol.ReturnStatus;
+import org.apache.hadoop.security.UnixUserGroupInformation;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+
+import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link RaidShell} that allows browsing configured raid policies.

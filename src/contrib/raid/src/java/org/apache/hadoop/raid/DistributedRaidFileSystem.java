@@ -17,27 +17,14 @@
  */
 package org.apache.hadoop.raid;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.DataInput;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.fs.ChecksumException;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FilterFileSystem;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSInputStream;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.util.Progressable;
-import org.apache.hadoop.util.ReflectionUtils;
-import org.apache.hadoop.raid.RaidNode;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.hdfs.BlockMissingException;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.util.ReflectionUtils;
+
+import java.io.IOException;
+import java.net.URI;
 
 /**
  * This is an implementation of the Hadoop  RAID Filesystem. This FileSystem 

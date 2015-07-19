@@ -18,39 +18,25 @@
 
 package org.apache.hadoop.raid;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Iterator;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Set;
-import java.util.HashSet;
-import java.lang.Thread;
-import java.net.InetSocketAddress;
-import org.xml.sax.SAXException;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.hadoop.ipc.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.Daemon;
-import org.apache.hadoop.net.NetUtils;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.BlockLocation;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.ipc.RPC;
+import org.apache.hadoop.ipc.Server;
 import org.apache.hadoop.mapred.Reporter;
-
+import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.raid.protocol.PolicyInfo;
 import org.apache.hadoop.raid.protocol.PolicyList;
 import org.apache.hadoop.raid.protocol.RaidProtocol;
-import org.apache.hadoop.raid.protocol.RaidProtocol.ReturnStatus;
+import org.apache.hadoop.util.Daemon;
+import org.apache.hadoop.util.StringUtils;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.*;
 
 /**
  * A {@link RaidNode} that implements 
