@@ -46,16 +46,19 @@ the CLASSPATH. The easiest way is to copy the hadoop-*-raid.jar
 from HADOOP_HOME/build/contrib/raid to HADOOP_HOME/lib. Alternatively
 you can modify HADOOP_CLASSPATH to include this jar, in conf/hadoop-env.sh.
 
-There is a single configuration file named raid.xml that describes the HDFS 
-path(s) that you want to raid. A sample of this file can be found in 
-sc/contrib/raid/conf/raid.xml. Please edit the entries in this file to list the 
-path(s) that you want to raid. Then, edit the hdfs-site.xml file for
-your installation to include a reference to this raid.xml. You can add the
-following to your hdfs-site.xml
+There is a single configuration file named raid.xml that describes the HDFS
+path(s) that you want to raid. A sample of this file can be found in
+conf/raid.xml.example. Please edit the entries in this file to list the path(s)
+that you want to raid. Then, edit the hdfs-site.xml file for your installation
+to include a reference to this raid.xml. You can add the following to your
+hdfs-site.xml
         <property>
           <name>raid.config.file</name>
           <value>/mnt/hdfs/DFS/conf/raid.xml</value>
-          <description>This is needed by the RaidNode </description>
+          <description>This is needed by the RaidNode. If the file doesn't exist,
+            the value will be regard as a resource, so the path relative to conf/
+            is valid.
+          </description>
         </property>
 
 Please add an entry to your hdfs-site.xml to enable hdfs clients to use the

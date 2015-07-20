@@ -31,6 +31,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -169,8 +171,16 @@ class ConfigManager {
     
     File file = new File(configFileName);
     if (!file.exists()) {
-      throw new RaidConfigurationException("Configuration file " + configFileName +
-                                           " does not exist.");
+      URL configURL = ConfigManager.class.getClassLoader().getResource(configFileName);
+      LOG.info(String.format("%s doesn't exist, fallback to load resource: %s",
+                             configFileName, configURL));
+      try {
+        file = new File(configURL.toURI());
+      } catch (URISyntaxException e) {}
+      if (!file.exists()) {
+        throw new RaidConfigurationException("Configuration file " + configFileName +
+                " does not exist.");
+      }
     }
 
     // Create some temporary hashmaps to hold the new allocs, and we only save
