@@ -57,6 +57,9 @@ if [ "$HOSTLIST" = "" ]; then
   fi
 fi
 
+# set default ssh options
+HADOOP_SSH_OPTS=${HADOOP_SSH_OPTS:-"-o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=10s"}
+
 for slave in `cat "$HOSTLIST"|sed  "s/#.*$//;/^$/d"`; do
  ssh $HADOOP_SSH_OPTS $slave $"${@// /\\ }" \
    2>&1 | sed "s/^/$slave: /" &
